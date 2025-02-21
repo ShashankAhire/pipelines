@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    environment {
+        SKIP_STAGE_2 = 'false'  // Set to 'true' to skip, 'false' to run
+    }
+
+    stages {
+        stage('1') {
+            steps {
+                echo 'Hello 1'
+            }
+        }
+
+        stage('2') {
+            when {
+                expression { return env.SKIP_STAGE_2 != 'true' }
+            }
+            steps {
+                echo 'Hello 2'
+            }
+        }
+
+        stage('3') {
+            steps {
+                echo 'Hello 3'
+            }
+        }
+    }
+}
