@@ -1,0 +1,41 @@
+pipeline {
+  agent any
+  stages {
+    // CI part
+    stage('scm checkout') {
+      steps {
+        git 'https://github.com/ShashankAhire/maven-project.git'
+      }
+    }
+    stage('Compile') {
+      steps {
+        withMaven(globalMavenSettingsConfig: '', jdk: 'JAVA_HOME', maven: 'MVN_HOME', mavenSettingsConfig: '', traceability: true) {
+          sh 'mvn compile'
+        }
+      }
+    }
+
+    stage('build') {
+      steps {
+        withMaven(globalMavenSettingsConfig: '', jdk: 'JAVA_HOME', maven: 'MVN_HOME', mavenSettingsConfig: '', traceability: true) {
+          sh 'mvn clean -B -DskipTests package'
+        }
+      }
+    }
+
+    stage('create docker image') {
+      steps {
+        sh 'docker build -t shashank1402/jenkins:latest .'
+
+      }
+    }
+
+    stage('push docker image to docker hub') {
+      steps {
+        withDockerRegistry(credentialsId: 'DockerHub', url: 'https://index.docker.io/v1/') {
+          sh 'docker push shashank1402/jenkins:latest'
+        }
+      }
+    }
+  }
+}
